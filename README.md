@@ -6,6 +6,7 @@
 <!-- badges: start -->
 
 ![](https://img.shields.io/badge/cool-useless-green.svg)
+[![R-CMD-check](https://github.com/coolbutuseless/wordle/workflows/R-CMD-check/badge.svg)](https://github.com/coolbutuseless/wordle/actions)
 <!-- badges: end -->
 
 The package captures code woich could be used to cheat at finding good

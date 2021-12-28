@@ -272,7 +272,7 @@ if (FALSE) {
   wordle$update(word = "eaten", response = c('yellow', 'yellow', 'grey', 'grey', 'grey'))
   wordle$get_suggestions()
 
-  wordle$update(word = "arose", response = c('green', 'grey', 'grey', 'yellow', 'green'))
+  wordle$update(word = "arise", response = c('green', 'grey', 'green', 'yellow', 'green'))
   wordle$get_suggestions()
 }
 

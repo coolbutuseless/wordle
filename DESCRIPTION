@@ -1,0 +1,16 @@
+Package: wordle
+Type: Package
+Title: Tools for Wordle 
+Version: 0.1.0
+Author: mikefc
+Maintainer: mikefc <mikefc@coolbutuseless.com>
+Description: Tools for Wordle word puzzles.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.2
+Imports:
+    R6
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

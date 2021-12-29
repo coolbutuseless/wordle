@@ -12,7 +12,7 @@ score_letters <- function(letters) sum(letter_scores[letters])
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Filter words based upon "Wordle" game state
+#' Filter a list of words based upon letter constraints
 #'
 #' @param words character vector of candidate words
 #' @param exact single string representing known characters in the word, with
@@ -30,8 +30,22 @@ score_letters <- function(letters) sum(letter_scores[letters])
 #'        E.g. This can be used if it is known definitively that there is only
 #'        one letter 'e' in the target word, in which case
 #'        \code{known_count = c(e = 1)}
+#' @param sort Should the returned words be sorted by score?  Default: TRUE.
+#'         The scoring method prioiritises words with common letters like
+#'         "e", "t" and "a" over uncommon letters like "q" and "z".
+#'         If FALSE, then words will be returned in the same order as given.
+#'
+#' @return character vector of words filtered from the original words which
+#'         match the constraints given.
+#'
+#' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-filter_words <- function(words, exact = ".....", excluded_letters = "", wrong_spot = c('', '', '', '', ''), known_count = c()) {
+filter_words <- function(words,
+                         exact = ".....",
+                         excluded_letters = "",
+                         wrong_spot = c('', '', '', '', ''),
+                         known_count = c(),
+                         sort = TRUE) {
 
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -101,11 +115,15 @@ filter_words <- function(words, exact = ".....", excluded_letters = "", wrong_sp
   }
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Re-order words by their score. lowest first.
+  # If requested: Re-order words by their score. lowest first.
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  split_words <- strsplit(words, '')
-  word_scores <- vapply(split_words, score_letters, numeric(1))
-  words[order(word_scores)]
+  if (isTRUE(sort)) {
+    split_words <- strsplit(words, '')
+    word_scores <- vapply(split_words, score_letters, numeric(1))
+    words[order(word_scores)]
+  } else {
+    words
+  }
 }
 
 
@@ -144,7 +162,9 @@ Wordle <- R6::R6Class(
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     #' Initialize Wordle
     #' @param nchar number of characters in the word
-    #' @param word_file source for all words. text file with 1-line-per-word
+    #' @param word_file source for all words. text file with 1-line-per-word.
+    #'        This defaults to \code{/usr/share/dict/words} which should work
+    #'        on many macOS and unix-like systems
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     initialize = function(nchar, word_file = "/usr/share/dict/words") {
       self$words <- readLines(word_file)
@@ -161,7 +181,7 @@ Wordle <- R6::R6Class(
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     #' Get some suggestions on candidate words
-    #' @param n number of words. default 20
+    #' @param n number of words. default 20. Use `Inf` to get all suggestions.
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     get_suggestions = function(n = 20) {
       head(self$words, n)

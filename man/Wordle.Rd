@@ -55,7 +55,9 @@ Initialize Wordle}
 \describe{
 \item{\code{nchar}}{number of characters in the word}
 
-\item{\code{word_file}}{source for all words. text file with 1-line-per-word
+\item{\code{word_file}}{source for all words. text file with 1-line-per-word.
+       This defaults to \code{/usr/share/dict/words} which should work
+       on many macOS and unix-like systems
 Get some suggestions on candidate words}
 }
 \if{html}{\out{</div>}}
@@ -72,7 +74,7 @@ Get some suggestions on candidate words}
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{n}}{number of words. default 20
+\item{\code{n}}{number of words. default 20. Use `Inf` to get all suggestions.
 Update the internal list of candidate words}
 }
 \if{html}{\out{</div>}}

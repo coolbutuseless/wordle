@@ -2,14 +2,15 @@
 % Please edit documentation in R/wordle.R
 \name{filter_words}
 \alias{filter_words}
-\title{Filter words based upon "Wordle" game state}
+\title{Filter a list of words based upon letter constraints}
 \usage{
 filter_words(
   words,
   exact = ".....",
   excluded_letters = "",
   wrong_spot = c("", "", "", "", ""),
-  known_count = c()
+  known_count = c(),
+  sort = TRUE
 )
 }
 \arguments{
@@ -33,7 +34,16 @@ then \code{wrong_spot = c('a', '', '', '', '')}}
 E.g. This can be used if it is known definitively that there is only
 one letter 'e' in the target word, in which case
 \code{known_count = c(e = 1)}}
+
+\item{sort}{Should the returned words be sorted by score?  Default: TRUE.
+The scoring method prioiritises words with common letters like
+"e", "t" and "a" over uncommon letters like "q" and "z".
+If FALSE, then words will be returned in the same order as given.}
+}
+\value{
+character vector of words filtered from the original words which
+        match the constraints given.
 }
 \description{
-Filter words based upon "Wordle" game state
+Filter a list of words based upon letter constraints
 }

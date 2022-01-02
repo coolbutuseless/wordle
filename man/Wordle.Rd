@@ -18,12 +18,11 @@ so far}
 a period used to indicate that the letter at this position is
 unknown}
 
-\item{\code{excluded_letters}}{all letters which are known to not be in the
-target word. character vector}
-
 \item{\code{wrong_spot}}{character vector of strings. Each string contains all
 letters which are known to be part of the word, but do not exist
 at this particular position}
+
+\item{\code{min_count}}{named vector of known minimum counts}
 
 \item{\code{known_count}}{named vector of known counts for letters e.g. if
 'e' is known only to appear once, then `known_count = c(e = 1)`}

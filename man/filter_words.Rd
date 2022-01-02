@@ -7,8 +7,8 @@
 filter_words(
   words,
   exact = ".....",
-  excluded_letters = "",
   wrong_spot = c("", "", "", "", ""),
+  min_count = c(),
   known_count = c(),
   sort = TRUE
 )
@@ -21,8 +21,6 @@ filter_words(
 E.g. For a 5 letter word if the 3rd and 4th letters are known to be 'a' and 'c', but
 all other letters are unknown, then \code{exact = "..ac."}}
 
-\item{excluded_letters}{string containing letters known to not be in the word}
-
 \item{wrong_spot}{a character vector the same length as the number of letters
 in the target word.  Each string in this vector represents all letters
 which are known to be part of the word, but in the wrong spot.
@@ -30,10 +28,13 @@ E.g. if 'a' has been attempted as the first character, and it exists
 in the word, but worlde claims it is not yet in the correct position,
 then \code{wrong_spot = c('a', '', '', '', '')}}
 
-\item{known_count}{name character vector giving letters and their known counts.
-E.g. This can be used if it is known definitively that there is only
-one letter 'e' in the target word, in which case
-\code{known_count = c(e = 1)}}
+\item{min_count}{named character vector giving letters and their minimum counts.
+E.g. If it is known that there are at least 2 'o's in the word:
+\code{min_count = c(o = 2)}}
+
+\item{known_count}{named character vector giving letters and their known total counts.
+This can be used to exclude all words with a particular letter by setting
+the count for that letter to zero.}
 
 \item{sort}{Should the returned words be sorted by score?  Default: TRUE.
 The scoring method prioiritises words with common letters like
@@ -46,4 +47,25 @@ character vector of words filtered from the original words which
 }
 \description{
 Filter a list of words based upon letter constraints
+}
+\examples{
+\dontrun{
+# Searching for a word:
+#
+# with 9 letters
+# starting with `p`
+# containing `v` and `z` somewhere, but not as the first letter
+# containing only one `z`
+# without an `a` or an `o` in it
+#
+words <- readLines("/usr/share/dict/words")
+
+filter_words(
+  words            = words,
+  exact            = "p........",
+  wrong_spot       = c("vz", "", "", "", "", "", "", "", ""),
+  min_count        = c(v = 1),
+  known_count      = c(z = 1, a = 0, o = 0)
+)
+}
 }

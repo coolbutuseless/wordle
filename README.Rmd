@@ -173,9 +173,9 @@ words <- readLines("/usr/share/dict/words")
 filter_words(
   words            = words,
   exact            = "p........",
-  excluded_letters = "ao",
   wrong_spot       = c("vz", "", "", "", "", "", "", "", ""),
-  known_count      = c(z = 1)
+  min_count        = c(v = 1),
+  known_count      = c(z = 1, a = 0, o = 0)
 )
 
 

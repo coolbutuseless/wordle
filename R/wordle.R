@@ -19,17 +19,18 @@ score_letters <- function(letters) sum(letter_scores[letters])
 #'        '.' used to indicate the letter at this position is unknown.
 #'        E.g. For a 5 letter word if the 3rd and 4th letters are known to be 'a' and 'c', but
 #'        all other letters are unknown, then \code{exact = "..ac."}
-#' @param excluded_letters string containing letters known to not be in the word
 #' @param wrong_spot a character vector the same length as the number of letters
 #'        in the target word.  Each string in this vector represents all letters
 #'        which are known to be part of the word, but in the wrong spot.
 #'        E.g. if 'a' has been attempted as the first character, and it exists
 #'        in the word, but worlde claims it is not yet in the correct position,
 #'        then \code{wrong_spot = c('a', '', '', '', '')}
-#' @param known_count name character vector giving letters and their known counts.
-#'        E.g. This can be used if it is known definitively that there is only
-#'        one letter 'e' in the target word, in which case
-#'        \code{known_count = c(e = 1)}
+#' @param min_count named character vector giving letters and their minimum counts.
+#'        E.g. If it is known that there are at least 2 'o's in the word:
+#'        \code{min_count = c(o = 2)}
+#' @param known_count named character vector giving letters and their known total counts.
+#'        This can be used to exclude all words with a particular letter by setting
+#'        the count for that letter to zero.
 #' @param sort Should the returned words be sorted by score?  Default: TRUE.
 #'         The scoring method prioiritises words with common letters like
 #'         "e", "t" and "a" over uncommon letters like "q" and "z".
@@ -39,27 +40,44 @@ score_letters <- function(letters) sum(letter_scores[letters])
 #'         match the constraints given.
 #'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Searching for a word:
+#' #
+#' # with 9 letters
+#' # starting with `p`
+#' # containing `v` and `z` somewhere, but not as the first letter
+#' # containing only one `z`
+#' # without an `a` or an `o` in it
+#' #
+#' words <- readLines("/usr/share/dict/words")
+#'
+#' filter_words(
+#'   words            = words,
+#'   exact            = "p........",
+#'   wrong_spot       = c("vz", "", "", "", "", "", "", "", ""),
+#'   min_count        = c(v = 1),
+#'   known_count      = c(z = 1, a = 0, o = 0)
+#' )
+#' }
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 filter_words <- function(words,
                          exact = ".....",
-                         excluded_letters = "",
                          wrong_spot = c('', '', '', '', ''),
+                         min_count = c(),
                          known_count = c(),
                          sort = TRUE) {
 
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Build a regex to match the exact case, but exclude any words which
-  # contain excluded letters, or letters in the wrong spot
+  # Build a regex to match the exact case, but exclude any words with
+  # letters in the wrong spot
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  excluded_letters <- rep(excluded_letters, nchar(exact))
-
-  stopifnot(length(wrong_spot) == nchar(exact))
-  excluded_letters <- paste(excluded_letters, wrong_spot, sep = "")
-  excluded_letters <- ifelse(nchar(excluded_letters) == 0, '.', paste0("[^", excluded_letters, "]"))
+  wrong_spot_regex <- ifelse(nchar(wrong_spot) == 0, '.', paste0("[^", wrong_spot, "]"))
 
   regex <- strsplit(exact, '')[[1]]
-  regex <- ifelse(regex == '.', excluded_letters, regex)
+  regex <- ifelse(regex == '.', wrong_spot_regex, regex)
   regex <- paste(regex, collapse = "")
   regex <- paste0('^', regex, '$')
 
@@ -72,47 +90,34 @@ filter_words <- function(words,
 
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Built a vector of all included letters regardless of whether they're in
-  # the wrong spot or not.
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  included_letters1 <- strsplit(exact, '')[[1]]
-  included_letters2 <- unlist(strsplit(wrong_spot, ''))
-  included_letters  <- c(included_letters1, included_letters2)
-  included_letters  <- included_letters[included_letters != '.']
-  included_letters  <- sort(unique(included_letters))
-
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Check that we have all included letters required
-  # Do this by comparing the sorted letters within each word vs a sorted regex
-  # e.g. to check for letters 'r' and 'e' in 'rebel'
-  #  grepl('e.*r', 'beerl')
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  if (length(included_letters) > 0) {
-
-    sorted_included_letters <- paste(sort(included_letters), collapse = ".*")
-
-    split_words <- strsplit(words, '')
-    sorted_letters <- vapply(split_words, function(letters) {
-      paste0(sort(letters), collapse = "")
-    }, character(1))
-
-    matching_included_letters <- which(grepl(sorted_included_letters, sorted_letters))
-    words <- words[matching_included_letters]
-  }
-
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # enforce a known count e.g. if it is known that there is only a single
-  # 'e' then drop words like "rebel" from the list of candidate words
+  # enforce a known minimum count
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   split_words <- strsplit(words, '')
+  keep <- rep(TRUE, length(words))
+  for (i in seq_along(min_count)) {
+    letter <- names(min_count)[i]
+    count  <- min_count[[i]]
+    match_counts <- vapply(split_words, function(x) {
+      sum(x == letter) >= count
+    }, logical(1))
+    keep <- keep & match_counts
+  }
+  words <- words[keep]
+
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # enforce a known exact count
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  split_words <- strsplit(words, '')
+  keep <- rep(TRUE, length(words))
   for (i in seq_along(known_count)) {
-    letter <- names(known_count)[1]
-    count  <- known_count[[1]]
+    letter <- names(known_count)[i]
+    count  <- known_count[[i]]
     match_counts <- vapply(split_words, function(x) {
       sum(x == letter) == count
     }, logical(1))
-    words <- words[match_counts]
+    keep <- keep & match_counts
   }
+  words <- words[keep]
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # If requested: Re-order words by their score. lowest first.
@@ -143,21 +148,20 @@ Wordle <- R6::R6Class(
     #' @field exact string representing which letters are known exactly, with
     #'        a period used to indicate that the letter at this position is
     #'        unknown
-    #' @field excluded_letters all letters which are known to not be in the
-    #'        target word. character vector
     #' @field wrong_spot character vector of strings. Each string contains all
     #'        letters which are known to be part of the word, but do not exist
     #'        at this particular position
+    #' @field min_count named vector of known minimum counts
     #' @field known_count named vector of known counts for letters e.g. if
     #'        'e' is known only to appear once, then `known_count = c(e = 1)`
     #' @field nchar number of characters in word
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    words = NULL,
-    exact = NULL,
-    excluded_letters = NULL,
-    wrong_spot = NULL,
+    words       = NULL,
+    exact       = NULL,
+    wrong_spot  = NULL,
+    min_count   = NULL,
     known_count = NULL,
-    nchar = NULL,
+    nchar       = NULL,
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     #' Initialize Wordle
@@ -170,11 +174,12 @@ Wordle <- R6::R6Class(
       self$words <- readLines(word_file)
       self$nchar <- nchar
 
-      self$exact <- rep('.', nchar)
-      self$excluded_letters <- c()
-      self$wrong_spot <- rep('', nchar)
+      self$exact       <- rep('.', nchar)
+      self$wrong_spot  <- rep('' , nchar)
+      self$min_count   <- c()
+      self$known_count <- c()
 
-      self$words <- filter_words(self$words, exact = paste(self$exact, collapse = ""))
+      self$words <- filter_words(self$words, paste(self$exact, collapse = ""))
 
       invisible(self)
     },
@@ -201,7 +206,7 @@ Wordle <- R6::R6Class(
       # Sanity check for length
       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       stopifnot(length(response) == self$nchar)
-      stopifnot(nchar(word) == self$nchar)
+      stopifnot(nchar(word)      == self$nchar)
 
       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       # Sanity check that reponse values are one of the three valid
@@ -212,6 +217,8 @@ Wordle <- R6::R6Class(
       stopifnot(all(response %in% c('green', 'yellow', 'grey')))
 
       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      # split the word apart as most calculations operate on the
+      # individual letters
       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       letters <- strsplit(word, "")[[1]]
 
@@ -231,40 +238,33 @@ Wordle <- R6::R6Class(
 
 
       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      # Letters to be added to the exclusion list are any that are 'grey'
-      # but not already in the word, or known to be in the wrong spot
+      # Update min_count and known_count
       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      new_excluded   <- letters[response == 'grey']
-      new_excluded   <- setdiff(new_excluded, self$exact)
-      all_wrong_spot <- unlist(strsplit(self$wrong_spot, ""))
-      new_excluded   <- setdiff(new_excluded, all_wrong_spot)
+      for (letter in unique(letters)) {
 
-      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      # add the new excluded letters to the global list
-      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      self$excluded_letters <- union(self$excluded_letters, new_excluded)
-
-
-      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      # If a letter appears in 'word' multiple times, but is sometimes 'grey'
-      # then use this to update self$known_count
-      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      tt <- table(letters)
-      dupe_letters <- names(tt)[tt > 1]
-
-      for (letter in dupe_letters) {
-        # gather all the 'response' for this letter
-        # e.g. c('green', 'grey')
-        dupe_response <- response[letters == letter]
-
-        # If the response is mixed and includes 'grey', then there must be
-        # a limit to the number of times this letter can appear
-        if (length(unique(dupe_response) > 1) && any(dupe_response == 'grey')) {
-          max_count <- sum(dupe_response != 'grey')
-          self$known_count[letter] <- max_count
+        letter_response <- response[letters == letter]
+        if (length(letter_response) == 1L) {
+          if (letter_response == 'grey') {
+            self$known_count[letter] <- 0
+          } else {
+            self$min_count[letter] <- max(self$min_count[letter], 1, na.rm = TRUE)
+          }
+        } else {
+          # letter appears more than once
+          if (all(letter_response == 'grey')) {
+            self$known_count[letter] <- 0
+          } else if (all(letter_response %in% c('green', 'yellow'))) {
+            self$min_count[letter] <- max(self$min_count[letter], length(letter_response), na.rm = TRUE)
+          } else {
+            # mix of 'grey' and 'green/yellow', which means that the
+            # number that are NOT grey must be the exact known count
+            # of that letter in the word
+            self$known_count[letter] <- sum(letter_response != 'grey')
+          }
         }
-      }
 
+
+      }
 
       #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       # Update the internal wordlist
@@ -272,8 +272,8 @@ Wordle <- R6::R6Class(
       self$words <- filter_words(
         words            = self$words,
         exact            = paste(self$exact, collapse = ""),
-        excluded_letters = paste(self$excluded_letters, collapse = ""),
         wrong_spot       = self$wrong_spot,
+        min_count        = self$min_count,
         known_count      = self$known_count
       )
 
@@ -285,25 +285,31 @@ Wordle <- R6::R6Class(
 )
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Manual test cases
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 if (FALSE) {
   wordle <- Wordle$new(5)
   wordle$get_suggestions()
 
-  wordle$update(word = "eaten", response = c('yellow', 'yellow', 'grey', 'grey', 'grey'))
+  wordle$update(word = "eaten", response = c('grey', 'grey', 'yellow', 'grey', 'grey'))
   wordle$get_suggestions()
 
-  wordle$update(word = "arise", response = c('green', 'grey', 'green', 'yellow', 'green'))
+  wordle$update(word = "torso", response = c('yellow', 'green', 'grey', 'green', 'yellow'))
   wordle$get_suggestions()
 }
 
 
+if (FALSE) {
+  words <- readLines("/usr/share/dict/words")
 
-
-
-
-
-
-
-
+  wordle::filter_words(
+    words       = words,
+    exact       = ".o.s.",
+    wrong_spot  = c("t", "", "", "", "o"),
+    min_count   = c(t=1, o=2, s=1),
+    known_count = c(r = 0)
+  )
+}
 
 

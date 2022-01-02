@@ -118,7 +118,7 @@ Update puzzle state with the word played and the response:
 puzzle$update("shire", c('grey', 'grey', 'grey', 'green', 'yellow'))
 puzzle$get_suggestions()
 #>  [1] "merry" "ferry" "clerk" "perry" "berry" "lyery" "kerry" "querl" "becry"
-#> [10] "jerry" "query" "Jerry" "Jewry" "Kerry" "Perry"
+#> [10] "jerry" "query" "Aperu" "Avery" "Jerry" "Jewry" "Kerry" "Perry" "Terry"
 ```
 
 ## Guess `merry`
@@ -130,7 +130,7 @@ Update puzzle state with the word played and the response:
 ``` r
 puzzle$update("merry", c('grey', 'green', 'green', 'green', 'green'))
 puzzle$get_suggestions()
-#> [1] "ferry" "perry" "berry" "kerry" "jerry" "Jerry" "Kerry" "Perry"
+#> [1] "ferry" "perry" "berry" "kerry" "jerry" "Jerry" "Kerry" "Perry" "Terry"
 ```
 
 ## Guess `ferry`
@@ -161,9 +161,9 @@ words <- readLines("/usr/share/dict/words")
 filter_words(
   words            = words,
   exact            = "p........",
-  excluded_letters = "ao",
   wrong_spot       = c("vz", "", "", "", "", "", "", "", ""),
-  known_count      = c(z = 1)
+  min_count        = c(v = 1),
+  known_count      = c(z = 1, a = 0, o = 0)
 )
 #> [1] "pulverize"
 ```

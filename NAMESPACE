@@ -3,3 +3,4 @@
 export(Wordle)
 export(filter_words)
 import(R6)
+import(stringi)

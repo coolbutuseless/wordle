@@ -1,3 +1,7 @@
+# wordle 0.1.2  2022-01-03
+
+* Switch to `stringi` for some string handling
+
 # wordle 0.1.1  2022-01-02
 
 * Internal refactor to fix bug for incorrect handling of `known_counts`

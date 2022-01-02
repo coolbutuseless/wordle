@@ -1,6 +1,8 @@
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Score each letter by its ranking in letter frequency (in english)
+# Score each word by summing the score for each letter
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 letter_freqs  <- strsplit('etaoinshrdlcumwfgypbvkjxqz', '')[[1]]
 letter_scores <- setNames(1:26, letter_freqs)
@@ -39,6 +41,7 @@ score_letters <- function(letters) sum(letter_scores[letters])
 #' @return character vector of words filtered from the original words which
 #'         match the constraints given.
 #'
+#' @import stringi
 #' @export
 #'
 #' @examples
@@ -92,32 +95,34 @@ filter_words <- function(words,
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # enforce a known minimum count
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  split_words <- strsplit(words, '')
-  keep <- rep(TRUE, length(words))
   for (i in seq_along(min_count)) {
-    letter <- names(min_count)[i]
-    count  <- min_count[[i]]
-    match_counts <- vapply(split_words, function(x) {
-      sum(x == letter) >= count
-    }, logical(1))
-    keep <- keep & match_counts
+    letter          <- names(min_count)[i]
+    this_min_count  <- min_count[[i]]
+
+    count <- stringi::stri_count_fixed(
+      str        = words,
+      pattern    = letter,
+      opts_fixed = list(case_insensitive = TRUE)
+    )
+
+    words <- words[count >= this_min_count]
   }
-  words <- words[keep]
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # enforce a known exact count
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  split_words <- strsplit(words, '')
-  keep <- rep(TRUE, length(words))
   for (i in seq_along(known_count)) {
-    letter <- names(known_count)[i]
-    count  <- known_count[[i]]
-    match_counts <- vapply(split_words, function(x) {
-      sum(x == letter) == count
-    }, logical(1))
-    keep <- keep & match_counts
+    letter            <- names(known_count)[i]
+    this_known_count  <- known_count[[i]]
+
+    count <- stringi::stri_count_fixed(
+      str        = words,
+      pattern    = letter,
+      opts_fixed = list(case_insensitive = TRUE)
+    )
+
+    words <- words[count == this_known_count]
   }
-  words <- words[keep]
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # If requested: Re-order words by their score. lowest first.

@@ -43,8 +43,9 @@ aims to help you find these good candidate words.
     has the following methods:
     -   `$new()` to start a new object to help with a new puzzle. Use
         the `word_file` argument to set the location of a list of words
-        to start with. This defaults to `/usr/share/dict/words` (which
-        should work on macOS and many unix-ish systems).
+        to start with. This defaults to an ‘official’ word list scraped
+        from the wordle website: \*
+        `system.file("words.txt", package = "wordle")`
     -   `$get_suggestions()` to get a list of candidate words given the
         words and responses that have been seen so far
     -   `$update()` to notify the object of what the latest `word` was,

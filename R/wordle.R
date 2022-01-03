@@ -172,10 +172,10 @@ Wordle <- R6::R6Class(
     #' Initialize Wordle
     #' @param nchar number of characters in the word
     #' @param word_file source for all words. text file with 1-line-per-word.
-    #'        This defaults to \code{/usr/share/dict/words} which should work
-    #'        on many macOS and unix-like systems
+    #'        This defaults to a word list ripped from the wordle page
+    #'        i.e. \code{system.file("words.txt", package = "wordle")}
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    initialize = function(nchar, word_file = "/usr/share/dict/words") {
+    initialize = function(nchar, word_file = system.file("words.txt", package = "wordle")) {
       self$words <- readLines(word_file)
       self$nchar <- nchar
 

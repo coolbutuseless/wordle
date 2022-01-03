@@ -46,7 +46,7 @@ Initialize Wordle}
 \if{latex}{\out{\hypertarget{method-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Wordle$new(nchar, word_file = "/usr/share/dict/words")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Wordle$new(nchar, word_file = system.file("words.txt", package = "wordle"))}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -55,8 +55,8 @@ Initialize Wordle}
 \item{\code{nchar}}{number of characters in the word}
 
 \item{\code{word_file}}{source for all words. text file with 1-line-per-word.
-       This defaults to \code{/usr/share/dict/words} which should work
-       on many macOS and unix-like systems
+       This defaults to a word list ripped from the wordle page
+       i.e. \code{system.file("words.txt", package = "wordle")}
 Get some suggestions on candidate words}
 }
 \if{html}{\out{</div>}}

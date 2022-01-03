@@ -39,13 +39,11 @@ aims to help you find these good candidate words.
 
 ## What’s in the box
 
+-   `wordle_dict` an ‘official’ list of words scraped from the Wordle
+    website
 -   `Wordle` R6 Class is the primary way of finding candidate words. It
     has the following methods:
-    -   `$new()` to start a new object to help with a new puzzle. Use
-        the `word_file` argument to set the location of a list of words
-        to start with. This defaults to an ‘official’ word list scraped
-        from the wordle website: \*
-        `system.file("words.txt", package = "wordle")`
+    -   `$new()` to start a new object to help with a new puzzle.
     -   `$get_suggestions()` to get a list of candidate words given the
         words and responses that have been seen so far
     -   `$update()` to notify the object of what the latest `word` was,
@@ -72,9 +70,9 @@ remotes::install_github('coolbutuseless/wordle')
 ``` r
 puzzle <- Wordle$new(nchar = 5)
 puzzle$get_suggestions()
-#>  [1] "otate" "tatta" "tenet" "eaten" "enate" "tatie" "teest" "teste" "setae"
-#> [10] "tease" "teeth" "theet" "state" "taste" "testa" "arete" "atone" "eater"
-#> [19] "neese" "oaten"
+#>  [1] "teene" "tenet" "eaten" "enate" "taata" "tatie" "teste" "tetes" "tease"
+#> [10] "teeth" "setae" "thete" "taste" "state" "antae" "eathe" "etats" "tates"
+#> [19] "teats" "testa"
 ```
 
 ## Guess `eaten`
@@ -90,9 +88,9 @@ Update puzzle state with the word played and the response:
 ``` r
 puzzle$update("eaten", c('yellow', 'grey', 'grey', 'grey', 'grey'))
 puzzle$get_suggestions()
-#>  [1] "hoose" "hoise" "issei" "osier" "serio" "diose" "idose" "loose" "oside"
-#> [10] "ohelo" "rodeo" "shies" "helio" "horse" "roleo" "shoer" "shore" "cooer"
-#> [19] "diode" "hirse"
+#>  [1] "oorie" "ooses" "hoise" "issei" "looie" "roose" "osier" "loose" "hoses"
+#> [10] "oleos" "oohed" "shoes" "sises" "soole" "rodeo" "hoied" "ishes" "rorie"
+#> [19] "roses" "shies"
 ```
 
 ## Guess `rodeo`
@@ -104,9 +102,9 @@ Update puzzle state with the word played and the response:
 ``` r
 puzzle$update("rodeo", c('yellow', 'grey', 'grey', 'yellow', 'grey'))
 puzzle$get_suggestions()
-#>  [1] "hirse" "shire" "cheir" "cress" "swire" "crile" "serif" "shure" "cerci"
-#> [10] "ceric" "girse" "curie" "ferri" "freir" "meril" "ureic" "crime" "fresh"
-#> [19] "spire" "birse"
+#>  [1] "seirs" "shire" "heirs" "sehri" "leirs" "liers" "serrs" "crise" "icers"
+#> [10] "seric" "sieur" "cress" "firie" "herls" "lehrs" "meris" "suers" "sweir"
+#> [19] "swire" "users"
 ```
 
 ## Guess `shire`
@@ -118,8 +116,7 @@ Update puzzle state with the word played and the response:
 ``` r
 puzzle$update("shire", c('grey', 'grey', 'grey', 'green', 'yellow'))
 puzzle$get_suggestions()
-#>  [1] "merry" "ferry" "clerk" "perry" "berry" "lyery" "kerry" "querl" "becry"
-#> [10] "jerry" "query"
+#> [1] "merry" "ferry" "clerk" "perry" "berry" "verry" "kerry" "jerry" "query"
 ```
 
 ## Guess `merry`
@@ -131,7 +128,7 @@ Update puzzle state with the word played and the response:
 ``` r
 puzzle$update("merry", c('grey', 'green', 'green', 'green', 'green'))
 puzzle$get_suggestions()
-#> [1] "ferry" "perry" "berry" "kerry" "jerry"
+#> [1] "ferry" "perry" "berry" "verry" "kerry" "jerry"
 ```
 
 ## Guess `ferry`

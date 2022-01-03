@@ -54,9 +54,9 @@ you find these good candidate words.
 
 ## What's in the box
 
+* `wordle_dict` an 'official' list of words scraped from the Wordle website
 * `Wordle` R6 Class is the primary way of finding candidate words. It has the 
   following methods:
-    * `wordle_dict` an 'official' list of words scraped from the Wordle website
     * `$new()` to start a new object to help with a new puzzle. 
     * `$get_suggestions()` to get a list of candidate words given the words
       and responses that have been seen so far

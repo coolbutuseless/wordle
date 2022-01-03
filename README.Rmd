@@ -56,11 +56,8 @@ you find these good candidate words.
 
 * `Wordle` R6 Class is the primary way of finding candidate words. It has the 
   following methods:
-    * `$new()` to start a new object to help with a new puzzle. Use the
-      `word_file` argument to set the location of a list of words to start 
-      with. This defaults to an 'official' word list scraped from the 
-      wordle website:
-          * `system.file("words.txt", package = "wordle")`
+    * `wordle_dict` an 'official' list of words scraped from the Wordle website
+    * `$new()` to start a new object to help with a new puzzle. 
     * `$get_suggestions()` to get a list of candidate words given the words
       and responses that have been seen so far
     * `$update()` to notify the object of what the latest `word` was, and the 
@@ -178,8 +175,6 @@ filter_words(
   min_count        = c(v = 1),
   known_count      = c(z = 1, a = 0, o = 0)
 )
-
-
 ```
 
 

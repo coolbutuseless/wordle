@@ -2,5 +2,6 @@
 
 export(Wordle)
 export(filter_words)
+export(wordle_dict)
 import(R6)
 import(stringi)

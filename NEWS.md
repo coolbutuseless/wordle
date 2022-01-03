@@ -1,3 +1,7 @@
+# wordle 0.1.4  2022-01-04
+
+* Export the `wordle_dict` list of words
+
 # wordle 0.1.3  2022-01-04
 
 * Include (and use by default) the 'official' wordle word list

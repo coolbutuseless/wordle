@@ -180,6 +180,25 @@ For example, it may be possible to pick the word that when played results
 in the most *other* words in the remaining list of words to be eliminated.
 
 
+# Tweetable Wordle Game Engine
+
+A playable game of Wordle in a tweet.
+
+This was an exercise to see if I could simplify the WordleGame into just 280 characters. It's mostly unreadable, and lacks safety checks, but it works!
+
+```{r eval = FALSE}
+#RStats #wordle in a tweet
+s=\(x)el(strsplit(x,''))
+t=s(sample(grep("^[a-z]{5}$",readLines('/usr/share/dict/words'),v=T),1))
+while(1){g=s(readline("? "))
+M=t==g
+r=which(!M)
+for(i in r)for(j in r)if(g[i]==t[j]){M[i]=2;r=r[r!=j]}
+cat(paste0('\033[48;5;',c(249,46,226)[M+1],'m ',g))}
+```
+
+<img src="man/figures/tweetable.png" />
+
 
 
 # Expert Function: `filter_words()`

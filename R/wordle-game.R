@@ -140,7 +140,6 @@ WordleGame <- R6::R6Class(
     #' @description Print a shareable text block showing the attempts
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     share = function() {
-      blocks <- c(grey = "⬜", yellow = "🟨", green = "🟩")
 
       for (response in self$responses) {
         cat(blocks[response], sep = "")

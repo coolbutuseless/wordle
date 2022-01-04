@@ -50,7 +50,8 @@ aims to help you find these good candidate words.
     -   `$update()` to notify the object of what the latest `word` was,
         and the colour responses received back from the game for each
         letter.
-    -   The `Wordle` class is a stateful wrapper around `filter_words()`
+    -   The `WordleHelper` class is a stateful wrapper around
+        `filter_words()`
 
 Advanced:
 
@@ -63,6 +64,7 @@ Advanced:
         relation to the hidden target word
     -   `$share()` create a block of unicode representing the evolution
         of the solution process.
+    -   `play_wordle()` is a simple helper function wrapping this class.
 
 ## Installation
 
@@ -74,7 +76,7 @@ with:
 remotes::install_github('coolbutuseless/wordle')
 ```
 
-# Play a game
+# Play a game of Wordle in your R console
 
 ``` r
 wordle::play_wordle()
@@ -82,11 +84,11 @@ wordle::play_wordle()
 
 <img src="man/figures/game.png" />
 
-# Solving a puzzle with `wordle::WordleHelper`
+# Help solve a puzzle with `wordle::WordleHelper`
 
-In this example, after picking my favourite starting word, I will just
-pick the first word in the alphabetical list of remaining possible
-words.
+In this example, after picking my favourite starting word, at each step
+I will just pick the first word in the alphabetical list of remaining
+possible words.
 
 <img src="man/figures/00.png" />
 

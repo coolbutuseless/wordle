@@ -1,3 +1,10 @@
+# wordle 0.1.5  2022-01-04
+
+* Remove the internal sorting mechanism - this is now the users responsibility
+* Add a `WordleGame` `R6` class for running a game of Wordle
+* Added a simple `play_wordle()` function to run the engine
+
+
 # wordle 0.1.4  2022-01-04
 
 * Export the `wordle_dict` list of words

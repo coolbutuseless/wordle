@@ -1,15 +1,5 @@
 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Score each letter by its ranking in letter frequency (in english)
-# Score each word by summing the score for each letter
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-letter_freqs  <- strsplit('etaoinshrdlcumwfgypbvkjxqz', '')[[1]]
-letter_scores <- setNames(1:26, letter_freqs)
-score_letters <- function(letters) sum(letter_scores[letters])
-
-# score_letters(c('h', 'e', 'l', 'l', 'o'))
-# score_letters(c('z', 'y', 'x', 'x', 'y'))
 
 
 
@@ -33,10 +23,6 @@ score_letters <- function(letters) sum(letter_scores[letters])
 #' @param known_count named character vector giving letters and their known total counts.
 #'        This can be used to exclude all words with a particular letter by setting
 #'        the count for that letter to zero.
-#' @param sort Should the returned words be sorted by score?  Default: TRUE.
-#'         The scoring method prioiritises words with common letters like
-#'         "e", "t" and "a" over uncommon letters like "q" and "z".
-#'         If FALSE, then words will be returned in the same order as given.
 #'
 #' @return character vector of words filtered from the original words which
 #'         match the constraints given.
@@ -69,8 +55,7 @@ filter_words <- function(words,
                          exact = ".....",
                          wrong_spot = c('', '', '', '', ''),
                          min_count = c(),
-                         known_count = c(),
-                         sort = TRUE) {
+                         known_count = c()) {
 
 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -124,16 +109,7 @@ filter_words <- function(words,
     words <- words[count == this_known_count]
   }
 
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # If requested: Re-order words by their score. lowest first.
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  if (isTRUE(sort)) {
-    split_words <- strsplit(words, '')
-    word_scores <- vapply(split_words, score_letters, numeric(1))
-    words[order(word_scores)]
-  } else {
-    words
-  }
+  words
 }
 
 
@@ -143,8 +119,8 @@ filter_words <- function(words,
 #' @import R6
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Wordle <- R6::R6Class(
-  "Worldle",
+WordleHelper <- R6::R6Class(
+  "WordleHelper",
   public = list(
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -174,7 +150,7 @@ Wordle <- R6::R6Class(
     #' @param words character vector of candidated words
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     initialize = function(nchar, words = wordle_dict) {
-      self$words <- words
+      self$words <- sort(words)
       self$nchar <- nchar
 
       self$exact       <- rep('.', nchar)
@@ -185,14 +161,6 @@ Wordle <- R6::R6Class(
       self$words <- filter_words(self$words, paste(self$exact, collapse = ""))
 
       invisible(self)
-    },
-
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    #' Get some suggestions on candidate words
-    #' @param n number of words. default 20. Use `Inf` to get all suggestions.
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    get_suggestions = function(n = 20) {
-      head(self$words, n)
     },
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -292,14 +260,14 @@ Wordle <- R6::R6Class(
 # Manual test cases
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 if (FALSE) {
-  wordle <- Wordle$new(5)
-  wordle$get_suggestions()
+  wordle <- WordleHelper$new(5)
+  wordle$words
 
   wordle$update(word = "eaten", response = c('grey', 'grey', 'yellow', 'grey', 'grey'))
-  wordle$get_suggestions()
+  wordle$words
 
   wordle$update(word = "torso", response = c('yellow', 'green', 'grey', 'green', 'yellow'))
-  wordle$get_suggestions()
+  wordle$words
 }
 
 

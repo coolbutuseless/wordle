@@ -39,19 +39,30 @@ aims to help you find these good candidate words.
 
 ## What’s in the box
 
+-   `play_wordle()` Simple way to play a game of wordle in the R console
 -   `wordle_dict` an ‘official’ list of words scraped from the Wordle
     website
--   `Wordle` R6 Class is the primary way of finding candidate words. It
-    has the following methods:
+-   `WordleHelper` R6 Class is the primary way of finding candidate
+    words. It has the following methods:
     -   `$new()` to start a new object to help with a new puzzle.
-    -   `$get_suggestions()` to get a list of candidate words given the
-        words and responses that have been seen so far
+    -   `$words` to get a list of all the remaining possible valid words
+        given the words and responses that have been seen so far
     -   `$update()` to notify the object of what the latest `word` was,
         and the colour responses received back from the game for each
         letter.
+    -   The `Wordle` class is a stateful wrapper around `filter_words()`
+
+Advanced:
+
 -   `filter_words()` is a stateless function for filtering a list of
     words by various constraints on letter position.
-    -   The `Wordle` class is a stateful wrapper around `filter_words()`
+-   `WordleGame` R6 class represnting a wordle game engine
+    -   `$new()` to create a new game and internally choose a target
+        word for this game
+    -   `$try(word)` to try a word and see what the respnse is in
+        relation to the hidden target word
+    -   `$share()` create a block of unicode representing the evolution
+        of the solution process.
 
 ## Installation
 
@@ -63,81 +74,98 @@ with:
 remotes::install_github('coolbutuseless/wordle')
 ```
 
-# Solving a puzzle with `Wordle`
+# Play a game
+
+``` r
+wordle::play_wordle()
+```
+
+<img src="man/figures/game.png" />
+
+# Solving a puzzle with `wordle::WordleHelper`
+
+In this example, after picking my favourite starting word, I will just
+pick the first word in the alphabetical list of remaining possible
+words.
 
 <img src="man/figures/00.png" />
 
 ``` r
-puzzle <- Wordle$new(nchar = 5)
-puzzle$get_suggestions()
-#>  [1] "teene" "tenet" "eaten" "enate" "taata" "tatie" "teste" "tetes" "tease"
-#> [10] "teeth" "setae" "thete" "taste" "state" "antae" "eathe" "etats" "tates"
-#> [19] "teats" "testa"
+helper <- WordleHelper$new(nchar = 5)
+length(helper$words)
+#> [1] 12972
+head(helper$words)
+#> [1] "aahed" "aalii" "aargh" "aarti" "abaca" "abaci"
 ```
 
-## Guess `eaten`
+## Initial word choice: `arose`
 
-There are a lot of uncommon words in the word list, and the online
-puzzle doesn’t accept some of them, so you’ll need to pick out a likely
-word - in this case I picked: `eaten`
+There are many opinions on a good starting word - I like: `arose`
 
 <img src="man/figures/01.png" />
 
 Update puzzle state with the word played and the response:
 
 ``` r
-puzzle$update("eaten", c('yellow', 'grey', 'grey', 'grey', 'grey'))
-puzzle$get_suggestions()
-#>  [1] "oorie" "ooses" "hoise" "issei" "looie" "roose" "osier" "loose" "hoses"
-#> [10] "oleos" "oohed" "shoes" "sises" "soole" "rodeo" "hoied" "ishes" "rorie"
-#> [19] "roses" "shies"
+helper$update("arose", c('grey', 'grey', 'grey', 'yellow', 'green'))
+helper$words
+#>  [1] "besee" "disme" "ensue" "esile" "fusee" "geste" "gusle" "issue" "istle"
+#> [10] "lisle" "mesne" "piste" "pusle" "scene" "scute" "sedge" "segue" "seine"
+#> [19] "seize" "selle" "semee" "semie" "sente" "shine" "shite" "shive" "shule"
+#> [28] "shute" "sidhe" "sidle" "siege" "sieve" "since" "singe" "sithe" "sixte"
+#> [37] "skene" "skite" "skive" "skyte" "slice" "slide" "slime" "slipe" "slive"
+#> [46] "slype" "smeke" "smile" "smite" "snide" "snipe" "spice" "spide" "spike"
+#> [55] "spile" "spine" "spite" "spule" "spume" "stede" "stele" "steme" "stile"
+#> [64] "stime" "stipe" "stive" "stude" "stupe" "style" "styme" "styte" "suede"
+#> [73] "suete" "suite" "sujee" "swede" "swile" "swine" "swipe" "swive" "sybbe"
+#> [82] "sycee" "sythe" "teste" "unsee" "upsee" "usque" "visie" "visne"
 ```
 
-## Guess `rodeo`
+## Choose the first word: `besee`
 
 <img src="man/figures/02.png" />
 
 Update puzzle state with the word played and the response:
 
 ``` r
-puzzle$update("rodeo", c('yellow', 'grey', 'grey', 'yellow', 'grey'))
-puzzle$get_suggestions()
-#>  [1] "seirs" "shire" "heirs" "sehri" "leirs" "liers" "serrs" "crise" "icers"
-#> [10] "seric" "sieur" "cress" "firie" "herls" "lehrs" "meris" "suers" "sweir"
-#> [19] "swire" "users"
+helper$update("besee", c('grey', 'yellow', 'yellow', 'grey', 'green'))
+helper$words
+#>  [1] "esile" "scene" "siege" "sieve" "skene" "smeke" "stede" "stele" "steme"
+#> [10] "suede" "suete" "sujee" "swede" "sycee"
 ```
 
-## Guess `shire`
+## Choose the first word: `esile`
 
 <img src="man/figures/03.png" />
 
 Update puzzle state with the word played and the response:
 
 ``` r
-puzzle$update("shire", c('grey', 'grey', 'grey', 'green', 'yellow'))
-puzzle$get_suggestions()
-#> [1] "merry" "ferry" "clerk" "perry" "berry" "verry" "kerry" "jerry" "query"
+helper$update("esile", c('yellow', 'yellow', 'yellow', 'grey', 'green'))
+helper$words
+#> [1] "siege" "sieve"
 ```
 
-## Guess `merry`
+## Choose the first word: `siege`
 
 <img src="man/figures/04.png" />
 
-Update puzzle state with the word played and the response:
-
-``` r
-puzzle$update("merry", c('grey', 'green', 'green', 'green', 'green'))
-puzzle$get_suggestions()
-#> [1] "ferry" "perry" "berry" "verry" "kerry" "jerry"
-```
-
-## Guess `ferry`
-
-<img src="man/figures/05.png" />
-
 **Success!**
 
-# Expert Users: `filter_words()`
+# Optimizing word selection
+
+In the above worked example no effort was made to optimize the word
+choice - instead the first word in the alphabetical list of remaining
+words was chosen.
+
+There may be opportunities to pick the “best” word that helps to solve
+the puzzle faster, but no such code is included in this package - yet!
+
+For example, it may be possible to pick the word that when played
+results in the most *other* words in the remaining list of words to be
+eliminated.
+
+# Expert Function: `filter_words()`
 
 The `Wordle` R6 class is just a stateful wrapper around a core function
 called `filter_words()`.
@@ -163,8 +191,9 @@ filter_words(
   min_count        = c(v = 1),
   known_count      = c(z = 1, a = 0, o = 0)
 )
-#> [1] "pulverize"
 ```
+
+    #> [1] "pulverize"
 
 ## Acknowledgements
 

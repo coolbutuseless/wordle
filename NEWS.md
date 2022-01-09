@@ -1,3 +1,9 @@
+
+# wordle 0.1.6  2022-01-09
+
+* add a `quiet` argument to `WordleGame$try()` to suppress output
+* Fixed issue #1
+
 # wordle 0.1.5  2022-01-04
 
 * Remove the internal sorting mechanism - this is now the users responsibility

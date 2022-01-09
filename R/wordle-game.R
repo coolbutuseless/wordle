@@ -81,8 +81,13 @@ WordleGame <- R6::R6Class(
     #' Play a word and see what the response is
     #'
     #' @param word string
+    #' @param quiet suppress output?  default: FALSE
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    try = function(word) {
+    try = function(word, quiet = FALSE) {
+
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      # Sanity check
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       if (nchar(word) != self$nchar) {
         message("Word must have ", self$nchar, " letters")
         return(invisible(NULL))
@@ -102,6 +107,12 @@ WordleGame <- R6::R6Class(
 
       guess <- strsplit(word, '')[[1]]
 
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      # Figure out an integer vector (length = nchar) with
+      #   0 = no match at all
+      #   1 = right letter, wrong spot
+      #   2 = right letter, right spot
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       exact   <- 2L * (self$target == guess)
       inexact <- which(self$target != guess)
 
@@ -111,23 +122,34 @@ WordleGame <- R6::R6Class(
           if (wrong_spot) {
             exact[i] <- 1L
             inexact <- inexact[inexact != j]
+            break
           }
         }
       }
 
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      # Dump some ANSI to the terminal showing the progress
+      # If not running interactively, you should probably set `quiet=TRUE`
+      # to avoid all this output
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      if (!quiet) {
+        if (self$dark_mode)
+          cat(black_text)
 
-      if (self$dark_mode)
-        cat(black_text)
+        cat(paste0(cols[exact+1], ' ', guess))
+        cat("", reset, "\n")
+      }
 
-      cat(paste0(cols[exact+1], ' ', guess))
-      cat("", reset, "\n")
-
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      # Map responses to colour words of 'grey', 'yellow' and 'green'
+      #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       response <- c('grey', 'yellow', 'green')[exact + 1]
-
       self$responses <- append(self$responses, list(response))
+
 
       response
     },
+
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     #' @description is the game solved?
@@ -135,6 +157,7 @@ WordleGame <- R6::R6Class(
     is_solved = function() {
       self$target_word %in% self$attempts
     },
+
 
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     #' @description Print a shareable text block showing the attempts

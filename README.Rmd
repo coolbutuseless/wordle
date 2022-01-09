@@ -204,7 +204,7 @@ cat(paste0('\033[48;5;',c(249,46,226)[M+1],'m ',g))}
 
 # Expert Function: `filter_words()`
 
-The `Wordle` R6 class is just a stateful wrapper around a core function 
+The `WordleHelper` R6 class is just a stateful wrapper around a core function 
 called `filter_words()`.
 
 In general you wouldn't need to call this function for solving a Wordle puzzle

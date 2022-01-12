@@ -72,7 +72,7 @@ You can install from [GitHub](https://github.com/coolbutuseless/wordle)
 with:
 
 ``` r
-# install.package('remotes')
+# install.packages('remotes')
 remotes::install_github('coolbutuseless/wordle')
 ```
 

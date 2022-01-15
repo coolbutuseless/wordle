@@ -191,6 +191,8 @@ WordleGame <- R6::R6Class(
 play_wordle <- function(words = wordle_dict, dark_mode = TRUE, debug = FALSE, target_word = NULL) {
   game <- WordleGame$new(words, target_word = target_word)
 
+  if (debug) message(game$target_word)
+
   while (TRUE) {
     attempt <- readline("Enter your guess: ")
     res <- game$try(attempt)

@@ -1,7 +1,7 @@
 Package: wordle
 Type: Package
 Title: Tools for Wordle 
-Version: 0.1.6
+Version: 0.1.7
 Author: mikefc
 Maintainer: mikefc <mikefc@coolbutuseless.com>
 Description: Tools for Wordle word puzzles.

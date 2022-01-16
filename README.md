@@ -154,18 +154,60 @@ helper$words
 
 **Success!**
 
-# Optimizing word selection
+# Orthogonal Word Sets
 
-In the above worked example no effort was made to optimize the word
-choice - instead the first word in the alphabetical list of remaining
-words was chosen.
+`orthogonal_words` are multiple lists of words from 1 to 5 words in a
+row. All words are drawn from `wordle_dict`.
 
-There may be opportunities to pick the “best” word that helps to solve
-the puzzle faster, but no such code is included in this package - yet!
+Within each set of words there are no duplicated letters.
 
-For example, it may be possible to pick the word that when played
-results in the most *other* words in the remaining list of words to be
-eliminated.
+Within each set of words, the most common N letters from the wordle
+dictionary are represented.
+
+E.g. The first 15 most common letters in the wordle dictionary are
+`c("s", "e", "a", "o", "r", "i", "l", "t", "n", "u", "d", "y", "c", "p")`.
+All the 3-word sets use each of these letters once (and once only) - no
+duplicated letters are allowed.
+
+``` r
+head(orthogonal_words[[1]])
+#>   word1
+#> 1 soare
+#> 2 aeros
+#> 3 arose
+head(orthogonal_words[[2]])
+#>   word1 word2
+#> 1 sonar tuile
+#> 2 suite loran
+#> 3 sorel tuina
+#> 4 roans tuile
+#> 5 lores tuina
+#> 6 soler tuina
+head(orthogonal_words[[3]])
+#>   word1 word2 word3
+#> 1 carts poind muley
+#> 2 coats pined murly
+#> 3 cared moils punty
+#> 4 cared ponty muils
+#> 5 mares poind culty
+#> 6 cures poind malty
+head(orthogonal_words[[4]])
+#>   word1 word2 word3 word4
+#> 1 barks child pongy fumet
+#> 2 barky child pongs fumet
+#> 3 banks porgy child fumet
+#> 4 porks chant bilgy fumed
+#> 5 parky bongs child fumet
+#> 6 porky bangs child fumet
+head(orthogonal_words[[5]])
+#>   word1 word2 word3 word4 word5
+#> 1 chunk gymps waltz fjord vibex
+#> 2 glent brick jumpy waqfs vozhd
+#> 3 gucks waltz fjord vibex nymph
+#> 4 blunk cimex grypt waqfs vozhd
+#> 5 glent prick jumby waqfs vozhd
+#> 6 bling treck jumpy waqfs vozhd
+```
 
 # Tweetable Wordle Game Engine
 
@@ -190,8 +232,8 @@ cat(paste0('\033[48;5;',c(249,46,226)[M+1],'m ',g))}
 
 # Expert Function: `filter_words()`
 
-The `Wordle` R6 class is just a stateful wrapper around a core function
-called `filter_words()`.
+The `WordleHelper` R6 class is just a stateful wrapper around a core
+function called `filter_words()`.
 
 In general you wouldn’t need to call this function for solving a Wordle
 puzzle but it might come in handy for other word puzzles.

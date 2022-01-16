@@ -1,4 +1,14 @@
 
+# wordle 0.1.7  2022-01-16
+
+* `play_wordle(debug = TRUE)` now outputs the target word at the start of the game
+* Tidied `wordle_dict` such the answer set is no longer at the front of the list
+* Split out `wordle_solns` which is a character vector of solutions to all 
+  past and future puzzles
+* Added `orthogonal_words`. These are sets of 1-to-5 words containing the 
+  5-, 10-, 15-, 20-, all- most common letters without duplicate letters.
+
+
 # wordle 0.1.6  2022-01-09
 
 * add a `quiet` argument to `WordleGame$try()` to suppress output

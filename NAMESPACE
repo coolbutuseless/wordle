@@ -3,6 +3,7 @@
 export(WordleGame)
 export(WordleHelper)
 export(filter_words)
+export(letter_freq)
 export(play_wordle)
 export(wordle_dict)
 export(wordle_solns)

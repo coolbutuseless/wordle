@@ -1,4 +1,9 @@
 
+# wordle 0.1.8  2022-01-23
+
+* Added `letter_freq`
+* Fixed error in README
+
 # wordle 0.1.7  2022-01-16
 
 * `play_wordle(debug = TRUE)` now outputs the target word at the start of the game

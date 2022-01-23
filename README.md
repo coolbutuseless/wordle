@@ -55,6 +55,8 @@ aims to help you find these good candidate words.
 
 Advanced:
 
+-   `orthogonal_words` sets of `n` words which encompass the top `n*5`
+    letters (by word frequency in the `wordle_dict`)
 -   `filter_words()` is a stateless function for filtering a list of
     words by various constraints on letter position.
 -   `WordleGame` R6 class represnting a wordle game engine
@@ -72,7 +74,7 @@ You can install from [GitHub](https://github.com/coolbutuseless/wordle)
 with:
 
 ``` r
-# install.package('remotes')
+# install.packages('remotes')
 remotes::install_github('coolbutuseless/wordle')
 ```
 
@@ -170,12 +172,17 @@ All the 3-word sets use each of these letters once (and once only) - no
 duplicated letters are allowed.
 
 ``` r
-head(orthogonal_words[[1]])
+letter_freq[1:5]
+#> [1] "s" "e" "a" "o" "r"
+head(orthogonal_words[[1]])  
 #>   word1
 #> 1 soare
 #> 2 aeros
 #> 3 arose
-head(orthogonal_words[[2]])
+
+letter_freq[1:10]
+#>  [1] "s" "e" "a" "o" "r" "i" "l" "t" "n" "u"
+head(orthogonal_words[[2]])  
 #>   word1 word2
 #> 1 sonar tuile
 #> 2 suite loran
@@ -183,7 +190,10 @@ head(orthogonal_words[[2]])
 #> 4 roans tuile
 #> 5 lores tuina
 #> 6 soler tuina
-head(orthogonal_words[[3]])
+
+letter_freq[1:15]
+#>  [1] "s" "e" "a" "o" "r" "i" "l" "t" "n" "u" "d" "y" "c" "p" "m"
+head(orthogonal_words[[3]])  
 #>   word1 word2 word3
 #> 1 carts poind muley
 #> 2 coats pined murly
@@ -191,6 +201,10 @@ head(orthogonal_words[[3]])
 #> 4 cared ponty muils
 #> 5 mares poind culty
 #> 6 cures poind malty
+
+letter_freq[1:20]
+#>  [1] "s" "e" "a" "o" "r" "i" "l" "t" "n" "u" "d" "y" "c" "p" "m" "h" "g" "b" "k"
+#> [20] "f"
 head(orthogonal_words[[4]])
 #>   word1 word2 word3 word4
 #> 1 barks child pongy fumet
@@ -199,6 +213,10 @@ head(orthogonal_words[[4]])
 #> 4 porks chant bilgy fumed
 #> 5 parky bongs child fumet
 #> 6 porky bangs child fumet
+
+letter_freq
+#>  [1] "s" "e" "a" "o" "r" "i" "l" "t" "n" "u" "d" "y" "c" "p" "m" "h" "g" "b" "k"
+#> [20] "f" "w" "v" "z" "j" "x" "q"
 head(orthogonal_words[[5]])
 #>   word1 word2 word3 word4 word5
 #> 1 chunk gymps waltz fjord vibex
